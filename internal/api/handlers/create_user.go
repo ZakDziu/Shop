@@ -42,6 +42,15 @@ func CreateUser(
 
 			return
 		}
+
+		req.Password, err = authService.HashPassword(password)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(&requestErrorFmt{Error: err.Error()})
+
+			return
+		}
+
 		id, err := userService.Create(ctx, *req)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

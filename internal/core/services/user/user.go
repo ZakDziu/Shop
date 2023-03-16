@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"shop/internal/core/domain"
 
 	"shop/internal/core/ports"
@@ -18,6 +19,10 @@ func NewUserService(userRepo ports.UserRepository) *UserService {
 }
 
 func (s *UserService) Create(ctx context.Context, user domain.User) (int, error) {
+	id, err := s.userRepo.GetIDByName(ctx, user.Name)
+	if id != 0 || err != nil {
+		return 0, errors.New("user with with username exist")
+	}
 	return s.userRepo.Create(ctx, user)
 }
 

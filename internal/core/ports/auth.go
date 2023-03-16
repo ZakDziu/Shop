@@ -7,6 +7,7 @@ import (
 
 type AuthService interface {
 	CheckUserCredentialsAndRole(ctx context.Context, username, password string, expectedRole domain.Role) (uint, error)
+	HashPassword(password string) (string, error)
 }
 
 type AuthRepository interface {

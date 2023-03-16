@@ -3,9 +3,11 @@ package auth
 import (
 	"context"
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"os"
 	"shop/internal/core/domain"
 	"shop/internal/core/ports"
+	"strconv"
 )
 
 type AuthService struct {
@@ -23,8 +25,8 @@ func (s *AuthService) CheckUserCredentialsAndRole(ctx context.Context, username,
 	if username == os.Getenv("SUPER_USERNAME") && password == os.Getenv("SUPER_PASSWORD") {
 		return 0, nil
 	}
-	pass, err := s.authRepo.GetUserPassword(ctx, username)
-	if pass != password || err != nil {
+	hash, err := s.authRepo.GetUserPassword(ctx, username)
+	if checkPasswordHash(password, hash) || err != nil {
 		return 0, errors.New("can't find user")
 	}
 	role, err := s.authRepo.GetUserRole(ctx, username)
@@ -36,4 +38,15 @@ func (s *AuthService) CheckUserCredentialsAndRole(ctx context.Context, username,
 		return 0, errors.New("error in get id")
 	}
 	return id, nil
+}
+
+func (s *AuthService) HashPassword(password string) (string, error) {
+	cost, err := strconv.Atoi(os.Getenv("COST"))
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
