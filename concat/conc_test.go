@@ -1,19 +1,44 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
 
-func BenchmarkStandart(b *testing.B) {
-	str := []string{"afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn"}
-	for i := 0; i < b.N; i++ {
-		_ = concat(str)
+const (
+	oneTestData = "this is a test string"
+	testCount   = 10000
+)
+
+var (
+	expected = strings.Repeat(oneTestData, testCount)
+	source   []string
+)
+
+func init() {
+	for i := 0; i < testCount; i++ {
+		source = append(source, oneTestData)
 	}
 }
 
-func BenchmarkBuffer(b *testing.B) {
-	str := []string{"afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn", "afa;dslkfn"}
-	for i := 0; i < b.N; i++ {
-		_ = concatBuffer(str)
+func BenchmarkConcat(b *testing.B) {
+	var result string
+	for n := 0; n < b.N; n++ {
+		result = concat(source)
+	}
+	b.StopTimer()
+	if result != expected {
+		b.Errorf("unexpected result; got=%s, want=%s", result, expected)
+	}
+}
+
+func BenchmarkConcatOptimized(b *testing.B) {
+	var result string
+	for n := 0; n < b.N; n++ {
+		result = concatOptimized(source)
+	}
+	b.StopTimer()
+	if result != expected {
+		b.Errorf("unexpected result; got=%s, want=%s", result, expected)
 	}
 }

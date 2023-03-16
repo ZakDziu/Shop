@@ -10,7 +10,7 @@ func concat(str []string) string {
 	return result
 }
 
-func concatBuffer(str []string) string {
+func concatOptimized(str []string) string {
 	var buffer bytes.Buffer
 	for _, v := range str {
 		buffer.WriteString(v)
